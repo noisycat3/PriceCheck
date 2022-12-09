@@ -69,7 +69,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -79,6 +79,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)fmt\include;$(ProjectDir)Third-Party\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,6 +99,7 @@
     <ClCompile Include="api\PriceAPI.cpp" />
     <ClCompile Include="classes\HoverItem.cpp" />
     <ClCompile Include="classes\ItemSeries.cpp" />
+    <ClCompile Include="classes\MenuManager.cpp" />
     <ClCompile Include="classes\PlayerTrade.cpp" />
     <ClCompile Include="classes\TradeIn.cpp" />
     <ClCompile Include="fmt\src\format.cc" />
@@ -121,12 +124,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PriceCheck.cpp" />
+    <ClCompile Include="wrappers\ProductsWrapper.cpp" />
+    <ClCompile Include="wrappers\WrapperUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api\APIClasses.h" />
     <ClInclude Include="api\PriceAPI.h" />
     <ClInclude Include="classes\HoverItem.h" />
     <ClInclude Include="classes\ItemSeries.h" />
+    <ClInclude Include="classes\MenuManager.h" />
+    <ClInclude Include="classes\MenuManagerMapping.inc" />
     <ClInclude Include="classes\PlayerTrade.h" />
     <ClInclude Include="classes\TradeIn.h" />
     <ClInclude Include="defines.h" />
@@ -149,6 +156,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PriceCheck.h" />
     <ClInclude Include="version.h" />
+    <ClInclude Include="wrappers\ProductsWrapper.h" />
+    <ClInclude Include="wrappers\WrapperUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PriceCheck.rc" />

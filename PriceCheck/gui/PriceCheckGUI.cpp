@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "IMGUI/imgui_internal.h";
+#include "IMGUI/imgui_internal.h"
 #include "PriceCheck.h"
 #include "bakkesmod/wrappers/GuiManagerWrapper.h"
 #include "gui/GUITools.h"

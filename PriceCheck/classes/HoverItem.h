@@ -28,6 +28,6 @@ public:
 private:
 
   bool isSame = false;
-  unsigned long long lastHover = 0;
+  ProductInstanceID lastHover;
   CachedItem m_item = CachedItem();
 };

@@ -5,6 +5,8 @@
 #include "bakkesmod/wrappers/items/ProductTradeInWrapper.h"
 #include "bakkesmod/wrappers/items/ProductWrapper.h"
 #include "defines.h"
+#include "wrappers/ProductsWrapper.h"
+#include "wrappers/WrapperUtil.h"
 
 BAKKESMOD_PLUGIN(PriceCheck, "Check item prices.", plugin_version, PLUGINTYPE_FREEPLAY)
 
@@ -60,6 +62,10 @@ void PriceCheck::registerCvars()
 
 void PriceCheck::registerHooks()
 {
+	gameWrapper->HookEventWithCallerPost<ProductsWrapper>(HOOK_INV_SCROLL, 
+		[this](ProductsWrapper caller, void* params, std::string eventName) { inventoryScrolled(caller); });
+
+
 	gameWrapper->HookEventWithCallerPost<TradeWrapper>(HOOK_TRADE_START,
 		[this](TradeWrapper caller, void* params, std::string eventName) { tradeStart(caller); });
 
@@ -105,31 +111,28 @@ void PriceCheck::registerHooks()
 	gameWrapper->HookEventWithCallerPost<ProductTradeInWrapper>(HOOK_TRADE_IN_END,
 		[this](ProductTradeInWrapper caller, void* params, std::string eventName) { tradeInEnded(caller); });
 
-	/* THIS IS NOT WORKING YET - unable to check if blueprint or item
-	gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_OPEN,
-		[this](ActorWrapper caller, void* params, std::string eventName)
-		{
-			showInventory = true;
-		});
+	/* THIS IS NOT WORKING YET - unable to check if blueprint or item */
+	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_OPEN,
+	//	[this](ActorWrapper caller, void* params, std::string eventName)
+	//	{
+	//		showInventory = true;
+	//	});
 
-	gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_CLOSE,
-		[this](ActorWrapper caller, void* params, std::string eventName)
-		{
-			showInventory = false;
-			hoverItem.Clear();
-		});
-	*/
-	/*
-	gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_HOVER,
-		[this](ActorWrapper caller, void* params, std::string eventName) 
-		{ 
-			hoverItem.OnHover();
-		});
-	*/
-	/*
-	gameWrapper->HookEventWithCallerPost<OnlineProductWrapper>(HOOK_INVENTORY_ITEM,
-		[this](OnlineProductWrapper caller, void* params, std::string eventName) { showInvetoryItem(caller); });
-	*/
+	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_CLOSE,
+	//	[this](ActorWrapper caller, void* params, std::string eventName)
+	//	{
+	//		showInventory = false;
+	//		hoverItem.Clear();
+	//	});
+
+	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_HOVER,
+	//	[this](ActorWrapper caller, void* params, std::string eventName) 
+	//	{ 
+	//		hoverItem.OnHover();
+	//	});
+
+	//gameWrapper->HookEventWithCallerPost<OnlineProductWrapper>(HOOK_INVENTORY_ITEM,
+	//	[this](OnlineProductWrapper caller, void* params, std::string eventName) { showInvetoryItem(caller); });
 }
 
 void PriceCheck::StartRender()
@@ -163,6 +166,17 @@ void PriceCheck::onLoad()
 		registerHooks();
 		registerCvars();
 
+		menuMgr.registerHooks(gameWrapper);
+		menuMgr.addOnTopChanged([this](ERocketMenu m)
+		{
+				LOG("Top menu changed: {}", getMenuNameFromEnum(m));
+		});
+
+		menuMgr.addOnUnknownMenu([this](const std::string& menu)
+		{
+			LOG("Top menu changed: {}", menu.c_str());
+		});
+
 		/* FOR TRADEITEMS */ // Is this NONO? check TradeItem.cpp -> updateItemInfo()
 		SpecialEditionDatabaseWrapper sedb = gameWrapper->GetItemsWrapper().GetSpecialEditionDB();
 		_globalSpecialEditionManager = std::make_shared<SpecialEditionDatabaseWrapper>(sedb);
@@ -176,6 +190,15 @@ void PriceCheck::onLoad()
 
 void PriceCheck::onUnload()
 {
+	menuMgr.unregisterHooks(gameWrapper);
+}
+
+void PriceCheck::inventoryScrolled(ProductsWrapper caller)
+{
+	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0x10, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
+	const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0xC8, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
+	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x30, 0x80, 0x20, 0x80, 0xC0, 0x170, 0x58, 0x10, 0x284 });
+	LOG("SCROLL: {}, {}", pp.get(), *pp.get<int32_t>());
 }
 
 void PriceCheck::tradeStart(TradeWrapper trade)
@@ -281,19 +304,20 @@ void PriceCheck::getNewOnlineItem(ActorWrapper wrap, void* params)
 	// Maybe its highest quality, then smallest ID
 	// Seems its using LIFO when displaying over 1 drops
 	// Could we use map -> <ID, InstanceID>
-	itemDrops.push_front(online_product.GetInstanceID());
-	LOG("Should add: {}, itemDrops: {}", online_product.GetInstanceID(), itemDrops);
+	const ProductInstanceID PID = online_product.GetInstanceIDV2();
+	itemDrops.push_front(PID);
+	LOG("Should add: {}-{}, itemDrops: {}", PID.lower_bits, PID.upper_bits, itemDrops);
 }
 
 void PriceCheck::showNewOnlineItem(ActorWrapper wrap, int count)
 {
 	// LOG("Drops: {}, caller: {}", itemDrops.size(), count);
 
-	if (!itemDrops.empty() && itemDrops.size() >= count)
+	if (!itemDrops.empty() && itemDrops.size() >= static_cast<size_t>(count))
 	{
 		// LOG("Drops amount: {}", itemDrops.size());
-		unsigned long long id = itemDrops.front();
-		TradeItem i = gameWrapper->GetItemsWrapper().GetOnlineProduct(id);
+		ProductInstanceID id = itemDrops.front();
+		TradeItem i = gameWrapper->GetItemsWrapper().GetOnlineProduct(id.lower_bits);
 		if (!i) 
 		{
 			LOG("{}: Item is null", __FUNCTION__);
@@ -373,23 +397,3 @@ void PriceCheck::checkSeriesItems(string cvarName, CVarWrapper newCvar)
 	}
 }
 */
-
-void PriceCheck::showInvetoryItem(OnlineProductWrapper wrap)
-{
-	if (wrap.IsNull())
-	{
-		LOG("{}: Wrapper is null", __FUNCTION__);
-		return;
-	}
-	
-	if (hoverItem.hover)
-	{
-		// Double check if visible
-		showInventory = true;
-		// Set hover to false, to only get the 1st item
-		hoverItem.hover = false;
-		// Show info to user
-		hoverItem.HandleItem(wrap);
-	}
-}
-

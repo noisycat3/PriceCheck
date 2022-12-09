@@ -17,6 +17,10 @@
 #define CVAR_HEIGHT "pc_height"
 #define CVAR_WIDTH "pc_width"
 
+/* INVENTORY HOOKS */
+//#define HOOK_INV_ITEM "Function TAGame.GFxData_Products_TA.LoadProduct"
+#define HOOK_INV_SCROLL "Function TAGame.GFxData_Products_TA.SetViewProducts"
+
 /* TRADE HOOKS */
 #define HOOK_TRADE_START "Function TAGame.GFxData_TradeLobby_TA.HandleAcceptedInviteToTrade"
 #define HOOK_TRADE_END "Function TAGame.GFxData_TradeLobby_TA.CancelTrading"
@@ -41,10 +45,10 @@
 #define HOOK_SHOW_NEW_ITEM "Function TAGame.PremiumGaragePreviewSet_TA.OnRevealFinished" // When user sees what item he got
 
 /* INVENTORY ITEM */
-#define HOOK_INV_OPEN "Function TAGame.GFxData_ProductFilter_TA.SetIgnoreEquipped"
-#define HOOK_INV_CLOSE "Function TAGame.GFxData_Products_TA.ClearReferencedProducts"
-#define HOOK_INV_HOVER "Function TAGame.GFxData_ContainerDrops_TA.GetMatchingProductSeries"
-#define HOOK_INVENTORY_ITEM "Function TAGame.OnlineProduct_TA.GetProduct"
+//#define HOOK_INV_OPEN "Function TAGame.GFxData_ProductFilter_TA.SetIgnoreEquipped"
+//#define HOOK_INV_CLOSE "Function TAGame.GFxData_Products_TA.ClearReferencedProducts"
+//#define HOOK_INV_HOVER "Function TAGame.GFxData_ContainerDrops_TA.GetMatchingProductSeries"
+//#define HOOK_INVENTORY_ITEM "Function TAGame.OnlineProduct_TA.GetProduct"
 
 /* PANIC HOOK - User is leaving lobby, we don't want to have any renders turned on anymore*/
 #define HOOK_CLOSE_RENDER "Function TAGame.GFxData_StartMenu_TA.OnRemoved"

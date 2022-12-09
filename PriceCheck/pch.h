@@ -7,7 +7,15 @@
 #define CPPHTTPLIB_ZLIB_SUPPORT
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
+
+#include <windows.h>
+#include <TlHelp32.h>
+uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName);
+
+#pragma warning(push)
+#pragma warning(disable: 4267)
 #include <httplib.h>
+#pragma warning(pop)
 
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "api/PriceAPI.h"
@@ -43,7 +51,7 @@ struct DropParams
 template<typename S, typename... Args>
 void LOG(const S& format_str, Args&&... args)
 {
-	_globalCvarManager->log(fmt::format(format_str, args...));
+	_globalCvarManager->log(fmt::format(format_str, std::forward<Args>(args)...));
 }
 
 template <typename T, typename std::enable_if<std::is_base_of<ObjectWrapper, T>::value>::type*>
@@ -56,3 +64,17 @@ void GameWrapper::HookEventWithCallerPost(std::string eventName,
   };
   HookEventWithCaller<ActorWrapper>(eventName, wrapped_callback);
 }
+
+bool operator==(const ProductInstanceID& A, const ProductInstanceID& B);
+inline bool operator!=(const ProductInstanceID& A, const ProductInstanceID& B) { return !(A == B); }
+
+template <> struct fmt::formatter<ProductInstanceID> {
+    auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        throw format_error("invalid format");
+    }
+
+    template <typename FormatContext>
+    auto format(const ProductInstanceID& p, FormatContext& ctx) const -> decltype(ctx.out()) {
+        return fmt::format_to(ctx.out(), "{}-{}", p.upper_bits, p.lower_bits);
+    }
+};

@@ -42,6 +42,12 @@
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{e73098d0-f7e3-4429-b89a-7a14ea58d1b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wrappers">
+      <UniqueIdentifier>{2eab31a4-4910-4485-803d-0781b49a0e43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\wrappers">
+      <UniqueIdentifier>{6703de1c-9739-4646-928c-12b72ced0ec3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PriceCheck.cpp">
@@ -118,6 +124,15 @@
     </ClCompile>
     <ClCompile Include="gui\PriceCheckGUI.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="wrappers\ProductsWrapper.cpp">
+      <Filter>Source Files\wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="wrappers\WrapperUtil.cpp">
+      <Filter>Source Files\wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="classes\MenuManager.cpp">
+      <Filter>Source Files\classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +213,18 @@
     </ClInclude>
     <ClInclude Include="gui\GUITools.h">
       <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="wrappers\ProductsWrapper.h">
+      <Filter>Header Files\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="wrappers\WrapperUtil.h">
+      <Filter>Header Files\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\MenuManager.h">
+      <Filter>Header Files\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\MenuManagerMapping.inc">
+      <Filter>Header Files\classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

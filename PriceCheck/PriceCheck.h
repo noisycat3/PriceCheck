@@ -7,7 +7,9 @@
 #include "classes/PlayerTrade.h"
 #include "classes/HoverItem.h"
 #include "classes/ItemSeries.h"
+#include "classes/MenuManager.h"
 #include "gui/Fonts.h"
+#include "wrappers/ProductsWrapper.h"
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
@@ -30,6 +32,7 @@ private:
 	std::shared_ptr<string> dataProvider;
 
 	GuiState guiState;
+	MenuManager menuMgr;
 
 	/* TRADE */
 	bool showTrade = false;
@@ -41,11 +44,10 @@ private:
 	ItemSeriesDatabaseWrapper itemSeriesDatabaseWrapper = ItemSeriesDatabaseWrapper();
 
 	/* ITEM DROPS */
-	std::list<unsigned long long> itemDrops;
+	std::list<ProductInstanceID> itemDrops;
 
 	/* INVETORY ITEM */
 	bool showInventory = false;
-	HoverItem hoverItem = HoverItem();
 
 	void registerCvars();
 	void registerHooks();
@@ -54,10 +56,13 @@ private:
 	void StopRender();
 
 public:
-	virtual void onLoad();
-	virtual void onUnload();
+	void onLoad() override;
+	void onUnload() override;
 
 	std::shared_ptr<PriceAPI> api;
+
+	/* INVENTORY FUNCTIONS */
+	void inventoryScrolled(ProductsWrapper caller);
 
 	/* TRADE FUNCTIONS */
 	void tradeStart(TradeWrapper trade);
@@ -74,9 +79,6 @@ public:
 	void tradeInEnded(ProductTradeInWrapper wrap);
 	void checkSeriesItems(string cvarName, CVarWrapper newCvar);
 
-	/* INVETORY ITEM */
-	void showInvetoryItem(OnlineProductWrapper wrap);
-
 	// Inherited via PluginWindow
 	
 	/* IMGUI STUFF */
@@ -88,13 +90,14 @@ public:
 	virtual void DrawTradeWindow();
 	virtual void DrawTradeInWindow();
 
-	virtual void Render() override;
-	virtual std::string GetMenuName() override;
-	virtual std::string GetMenuTitle() override;
-	virtual void SetImGuiContext(uintptr_t ctx) override;
-	virtual bool ShouldBlockInput() override;
-	virtual bool IsActiveOverlay() override;
+	void Render() override;
+	std::string GetMenuName() override;
+	std::string GetMenuTitle() override;
 
-	virtual void OnOpen() override;
-	virtual void OnClose() override;
+	void SetImGuiContext(uintptr_t ctx) override;
+	bool ShouldBlockInput() override;
+	bool IsActiveOverlay() override;
+
+	void OnOpen() override;
+	void OnClose() override;
 };

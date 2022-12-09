@@ -20,13 +20,13 @@ void HoverItem::Clear()
 {
   hover = false;
   m_item = CachedItem();
-  lastHover = 0;
+  lastHover = ProductInstanceID();
 }
 
 void HoverItem::HandleItem(OnlineProductWrapper item)
 {
   if (item.IsNull()) return;
-  auto id = item.GetInstanceID();
+  ProductInstanceID id = item.GetInstanceIDV2();
   
   if (id != lastHover)
   {
