@@ -18,4 +18,9 @@ public:
 
 private:
 	int32_t* ptrScroll = nullptr;
+	Vector2 gameSize = { 0, 0 };
+	float uiScale = 1.0f;
+
+	ImFont* fontTitle = nullptr;
+	ImFont* fontText = nullptr;
 };

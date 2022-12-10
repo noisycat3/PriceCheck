@@ -28,9 +28,10 @@ public:
 	// Core fonts are named: default and title
 	ImFont* GetFont(string name);
 
+	static Fonts& getInstance();
+
 private:
 	std::vector<CustomFont> supportedFonts;
 	int counter = 0;
-	std::shared_ptr<GameWrapper> _gw;
 };
 

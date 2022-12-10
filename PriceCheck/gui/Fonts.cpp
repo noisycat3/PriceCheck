@@ -37,7 +37,7 @@ ImFont* Fonts::GetFont(string name)
   // Font not found in loaded fonts! This could happen on first render.
   try 
   {
-    auto gui = _gw->GetGUIManager();
+    auto gui = _globalGameWrapper->GetGUIManager();
     auto font = gui.GetFont(name);
     if (font) loaded.insert(std::pair<string, ImFont*>(name, font));
     return font;
@@ -46,6 +46,13 @@ ImFont* Fonts::GetFont(string name)
   {
     LOG("Exeption in {}: {}", __FUNCTION__, e.what());
     // Return default font.
-    return _gw->GetGUIManager().GetFont("default");
+    return _globalGameWrapper->GetGUIManager().GetFont("default");
   }
 }
+
+Fonts& Fonts::getInstance()
+{
+    static Fonts s_fonts;
+    return s_fonts;
+}
+
