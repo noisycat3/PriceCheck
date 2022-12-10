@@ -2,12 +2,12 @@
 #define CASE( ... )
 #endif
 
-CASE("RootMenuMovie", MainMenu);
-CASE("MainPlayMenuMovie", PlayMain);
-CASE("CasualPlayListMenuMovie", PlayCasual);
-CASE("CompetitivePlayListMenuMovie", PlayComp);
+CASE("StartMenuMovie", SplashScreen)
 
-CASE("GarageMainMenuMovie", GarageMain);
-CASE("PremiumInventoryMenuMovie", GarageInventory);
-
-CASE("SearchingPlayMenuMovie", GameSearching);
+CASE("RootMenuMovie", MainMenu)
+CASE("MainPlayMenuMovie", PlayMain)
+CASE("CasualPlayListMenuMovie", PlayCasual)
+CASE("CompetitivePlayListMenuMovie", PlayComp)
+CASE("GarageMainMenuMovie", GarageMain)
+CASE("PremiumInventoryMenuMovie", GarageInventory)
+CASE("SearchingPlayMenuMovie", GameSearching)

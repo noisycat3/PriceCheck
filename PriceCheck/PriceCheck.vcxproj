@@ -97,7 +97,6 @@
   <ItemGroup>
     <ClCompile Include="api\APIClasses.cpp" />
     <ClCompile Include="api\PriceAPI.cpp" />
-    <ClCompile Include="classes\HoverItem.cpp" />
     <ClCompile Include="classes\ItemSeries.cpp" />
     <ClCompile Include="classes\MenuManager.cpp" />
     <ClCompile Include="classes\PlayerTrade.cpp" />
@@ -107,6 +106,7 @@
     <ClCompile Include="gui\Fonts.cpp" />
     <ClCompile Include="gui\GUITools.cpp" />
     <ClCompile Include="gui\PriceCheckGUI.cpp" />
+    <ClCompile Include="handlers\HandlerInventory.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imguivariouscontrols.cpp" />
     <ClCompile Include="imgui\imgui_additions.cpp" />
@@ -130,7 +130,6 @@
   <ItemGroup>
     <ClInclude Include="api\APIClasses.h" />
     <ClInclude Include="api\PriceAPI.h" />
-    <ClInclude Include="classes\HoverItem.h" />
     <ClInclude Include="classes\ItemSeries.h" />
     <ClInclude Include="classes\MenuManager.h" />
     <ClInclude Include="classes\MenuManagerMapping.inc" />
@@ -139,6 +138,7 @@
     <ClInclude Include="defines.h" />
     <ClInclude Include="gui\Fonts.h" />
     <ClInclude Include="gui\GUITools.h" />
+    <ClInclude Include="handlers\HandlerInventory.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imguivariouscontrols.h" />

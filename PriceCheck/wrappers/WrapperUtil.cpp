@@ -19,3 +19,8 @@ void* PointerPath::get() const
 		ptr = *reinterpret_cast<PtrType*>(ptr) + off;
 	return ptr;
 }
+
+
+std::string VersionedPointerPath::s_version;
+uint32_t VersionedPointerPath::s_versionCrc;
+HostDependentPointerPath::EHost VersionedPointerPath::s_hostEnv;

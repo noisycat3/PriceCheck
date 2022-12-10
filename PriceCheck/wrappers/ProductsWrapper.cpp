@@ -31,11 +31,14 @@ ProductsWrapper::operator bool() const
 	return !IsNull();
 }
 
-size_t ProductsWrapper::getInventoryScrollOffset()
+int32_t* ProductsWrapper::getInventoryScrollOffsetPtr()
 {
-	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0x10, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
-	const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0xC8, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
-	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x30, 0x80, 0x20, 0x80, 0xC0, 0x170, 0x58, 0x10, 0x284 });
-	LOG("SCROLL: {}, {}", pp.get(), *pp.get<int32_t>());
-	return *pp.get<int32_t>();
+	MAKE_VPP(scrollOffset, 
+		VPP_CASE(221202.34185.407707, 
+			PointerPath(),
+			PointerPath(0x0237BBE8, { 0x120, 0x28, 0x10, 0x198, 0x6E8, 0x20, 0xED0, 0x278, 0x284 })
+		)
+	);
+
+	return scrollOffset.get<int32_t>();
 }

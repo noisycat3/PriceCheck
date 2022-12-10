@@ -23,27 +23,18 @@ void PriceCheck::registerCvars()
 	*/
 	try 
 	{
-		cvarManager->registerCvar(CVAR_PROVIDER, "1", "Select data provider", false).bindTo(dataProvider);
-		cvarManager->registerCvar(CVAR_DATA_STATUS, " unknown", "Placeholder for data status", false);
+		cvarManager->registerCvar(CVAR_PROVIDER, "1", "Select data provider", false)
+			.bindTo(dataProvider);
 
-		auto avg = cvarManager->registerCvar(CVAR_USE_AVG, "0", "Use AVG prices", false, true, 0, true, 1);
-		avg.bindTo(useAVG);
-		avg.addOnValueChanged([this](std::string cvarName, CVarWrapper newCvar)
-			{
-				if (newCvar.IsNull()) return;
-				bool value = newCvar.getBoolValue();
-				playerTrade.useAvg = value;
-				tradeIn.useAvg = value;
-			}
-		);
-		auto force = cvarManager->registerCvar(CVAR_FORCE_SHOW, "0", "Show all UI elements", false, true, 0, true, 1);
-		force.bindTo(forceShow);
-		force.addOnValueChanged([this](std::string cvarName, CVarWrapper newCvar) 
-			{
-				if (newCvar.IsNull()) return;
-				newCvar.getBoolValue() ? StartRender() : StopRender();
-			}
-		);
+		CVarWrapper forceShowVariable = cvarManager->registerCvar(CVAR_FORCE_SHOW, "0", "Show all UI elements", 
+			false, true, 0,true, 1);
+		forceShowVariable.bindTo(forceShow);
+		forceShowVariable.addOnValueChanged([this](std::string cvarName, CVarWrapper newCvar) 
+		{
+			if (newCvar.IsNull()) 
+				return;
+			newCvar.getBoolValue() ? StartRender() : StopRender();
+		});
 
 		/* DEBUG ITEM SERIES
 		auto seriesInfo = cvarManager->registerCvar("pc_series", "1", "Check series items", true, true, 1);
@@ -135,14 +126,16 @@ void PriceCheck::registerHooks()
 	//	[this](OnlineProductWrapper caller, void* params, std::string eventName) { showInvetoryItem(caller); });
 }
 
+const std::string PriceCheck::s_wndName = "PriceCheck";
+
 void PriceCheck::StartRender()
 {
-	cvarManager->executeCommand("openmenu " + GetMenuName());
+	_globalCvarManager->executeCommand("openmenu " + s_wndName);
 }
 
 void PriceCheck::StopRender()
 {
-	cvarManager->executeCommand("closemenu " + GetMenuName());
+	_globalCvarManager->executeCommand("closemenu " + s_wndName);
 }
 
 void PriceCheck::onLoad()
@@ -151,6 +144,10 @@ void PriceCheck::onLoad()
 	{
 		_globalCvarManager = cvarManager;
 		_globalGameWrapper = gameWrapper;
+
+		// Set global version for pointer paths
+		VersionedPointerPath::setVersion(gameWrapper->GetPsyBuildID(),
+			gameWrapper->IsUsingSteamVersion() ? HostDependentPointerPath::STEAM : HostDependentPointerPath::EPIC);
 
 		/* ITEM API */
 		api = std::make_shared<PriceAPI>(cvarManager, gameWrapper);
@@ -174,8 +171,10 @@ void PriceCheck::onLoad()
 
 		menuMgr.addOnUnknownMenu([this](const std::string& menu)
 		{
-			LOG("Top menu changed: {}", menu.c_str());
+			LOG("UNKNOWN MENU: `{}`", menu.c_str());
 		});
+
+		menuMgr.registerScreenHandler(handlerInventory);
 
 		/* FOR TRADEITEMS */ // Is this NONO? check TradeItem.cpp -> updateItemInfo()
 		SpecialEditionDatabaseWrapper sedb = gameWrapper->GetItemsWrapper().GetSpecialEditionDB();
@@ -190,15 +189,20 @@ void PriceCheck::onLoad()
 
 void PriceCheck::onUnload()
 {
-	menuMgr.unregisterHooks(gameWrapper);
+	StopRender();
+
+	menuMgr.unregisterHooks();
+	menuMgr.resetHandlers();
+	menuMgr.resetCallbacks();
 }
 
 void PriceCheck::inventoryScrolled(ProductsWrapper caller)
 {
 	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0x10, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
-	const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0xC8, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
+	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0xC8, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
 	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x30, 0x80, 0x20, 0x80, 0xC0, 0x170, 0x58, 0x10, 0x284 });
-	LOG("SCROLL: {}, {}", pp.get(), *pp.get<int32_t>());
+	//LOG("SCROLL: {}\nsteam: {}, bakkes: {}, psy: {}", caller.getInventoryScrollOffset(), 
+	//	gameWrapper->GetSteamVersion(), gameWrapper->GetBakkesModVersion(), gameWrapper->GetPsyBuildID().c_str());
 }
 
 void PriceCheck::tradeStart(TradeWrapper trade)
@@ -368,7 +372,8 @@ void PriceCheck::checkPrices(ProductTradeInWrapper wrap)
 	// As we will loop old items as well, clear the existing list.
 	tradeIn.Clear();
 
-	for (TradeItem i : items) tradeIn.AddItem(i);
+	for (TradeItem i : items) 
+		tradeIn.AddItem(i);
 }
 
 void PriceCheck::tradeInEnded(ProductTradeInWrapper wrap)

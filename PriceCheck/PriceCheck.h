@@ -5,10 +5,10 @@
 
 #include "classes/TradeIn.h"
 #include "classes/PlayerTrade.h"
-#include "classes/HoverItem.h"
 #include "classes/ItemSeries.h"
 #include "classes/MenuManager.h"
 #include "gui/Fonts.h"
+#include "handlers/HandlerInventory.h"
 #include "wrappers/ProductsWrapper.h"
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
@@ -20,7 +20,7 @@ struct GuiState
 	bool showInventory = false;
 };
 
-class PriceCheck: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
+class PriceCheck : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
 private:
 	// Params to keep track of actions
@@ -32,7 +32,10 @@ private:
 	std::shared_ptr<string> dataProvider;
 
 	GuiState guiState;
+
+	// Handlers for custom display
 	MenuManager menuMgr;
+	HandlerInventory handlerInventory;
 
 	/* TRADE */
 	bool showTrade = false;
@@ -52,10 +55,11 @@ private:
 	void registerCvars();
 	void registerHooks();
 
-	void StartRender();
-	void StopRender();
 
 public:
+	static void StartRender();
+	static void StopRender();
+
 	void onLoad() override;
 	void onUnload() override;
 
@@ -82,17 +86,17 @@ public:
 	// Inherited via PluginWindow
 	
 	/* IMGUI STUFF */
+	static const std::string s_wndName;
+
 	bool isWindowOpen_ = false;
-	bool isMinimized_ = false;
-	std::string menuTitle_ = "PriceCheck";
 	Fonts fonts = Fonts();
 
 	virtual void DrawTradeWindow();
 	virtual void DrawTradeInWindow();
 
 	void Render() override;
-	std::string GetMenuName() override;
-	std::string GetMenuTitle() override;
+	std::string GetMenuName() override { return s_wndName; }
+	std::string GetMenuTitle() override { return s_wndName; }
 
 	void SetImGuiContext(uintptr_t ctx) override;
 	bool ShouldBlockInput() override;

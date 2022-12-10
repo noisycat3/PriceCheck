@@ -9,5 +9,5 @@ public:
 	explicit operator bool() const;
 	//END SELF IMPLEMENTED
 
-	size_t getInventoryScrollOffset();
+	[[nodiscard]] static int32_t* getInventoryScrollOffsetPtr();
 };

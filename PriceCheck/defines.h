@@ -1,21 +1,7 @@
 #pragma once
 
 #define CVAR_PROVIDER "pc_provider"
-#define CVAR_DATA_STATUS "pc_data_status"
-
-#define CVAR_USE_AVG "pc_use_avg"
-#define CVAR_GIVE_X "pc_trade_x"
-#define CVAR_GIVE_Y "pc_trade_y"
 #define CVAR_FORCE_SHOW "pc_force_show"
-
-#define CVAR_TRADE_IN_X "pc_tradein_x"
-#define CVAR_TRADE_IN_Y "pc_tradein_y"
-
-#define CVAR_HOVER_X "pc_hover_x"
-#define CVAR_HOVER_Y "pc_hover_y"
-
-#define CVAR_HEIGHT "pc_height"
-#define CVAR_WIDTH "pc_width"
 
 /* INVENTORY HOOKS */
 //#define HOOK_INV_ITEM "Function TAGame.GFxData_Products_TA.LoadProduct"

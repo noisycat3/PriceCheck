@@ -7,6 +7,8 @@
 // Do ImGui rendering here
 void PriceCheck::Render()
 {
+	menuMgr.renderHandlers();
+
 	if (*forceShow)
 	{
 		// Show everything
@@ -79,18 +81,6 @@ void PriceCheck::DrawTradeInWindow()
 	ImGui::End();
 	ImGui::PopStyleVar(3);
 	ImGui::PopStyleColor(2);
-}
-
-// Name of the menu that is used to toggle the window.
-std::string PriceCheck::GetMenuName()
-{
-	return "PriceCheck";
-}
-
-// Title to give the menu
-std::string PriceCheck::GetMenuTitle()
-{
-	return menuTitle_;
 }
 
 // Don't call this yourself, BM will call this function with a pointer to the current ImGui context

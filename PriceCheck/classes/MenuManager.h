@@ -1,31 +1,85 @@
 #pragma once
 
+#define CASE( str, value ) value ,
 enum class ERocketMenu : uint8_t
 {
 	Unknown,
-	MainMenu,
-		PlayMain,
-			PlayCasual,
-			PlayComp,
-		GarageMain,
-			GarageInventory,
-		
-	GameSearching,
-
+#include "MenuManagerMapping.inc"
 	Count // Keep last
 };
+#undef CASE
 
 // Utilities to convert to and from string
 ERocketMenu getMenuFromStringName(const std::string& menuName);
 const char* getMenuNameFromEnum(ERocketMenu menu);
 
+/*
+ * Interface for handling screen-specific operations
+ */
+struct IMenuScreenHandler
+{
+	// BOILERPLATE INTERFACE
+	IMenuScreenHandler() = default;
+	virtual ~IMenuScreenHandler() = default;
+
+	IMenuScreenHandler(const IMenuScreenHandler&) = default;
+	IMenuScreenHandler(IMenuScreenHandler&&) = default;
+	IMenuScreenHandler& operator=(const IMenuScreenHandler&) = default;
+	IMenuScreenHandler& operator=(IMenuScreenHandler&&) = default;
+	// ~BOILERPLATE INTERFACE
+
+	// Check if window should be visible in a given menu
+	[[nodiscard]] virtual bool isVisibleIn(ERocketMenu menu) const = 0;
+
+	// Get optional delay for enabling screen handler
+	[[nodiscard]] virtual float getShowDelay() const { return 0.f; }
+
+	// Called when handler is registered in menu manager
+	virtual void onRegister(GameWrapper* gw) { }
+	
+	// Called when window becomes visible
+	virtual void onEnable(GameWrapper* gw) { }
+
+	// Called to render the window when enabled
+	virtual void render(GameWrapper* gw) { }
+
+	// Called when window is hidden
+	virtual void onDisable(GameWrapper* gw) { }
+
+	// Called when handler is removed from menu manager
+	virtual void onUnregister(GameWrapper* gw) { }
+
+	// Check if currently enabled
+	[[nodiscard]] bool isEnabled() const { return _isEnabled; }
+
+private:
+	friend class MenuManager;
+	bool _isEnabled = false;
+};
+
+/*
+ * Class for handling menu navigation
+ *		Contains callbacks for common operations with menu stack
+ *		Can manage screen-specific windows
+ */
 class MenuManager
 {
 public:
-	// Use this function to initialize menu manager
+	// Initializes and enables the manager
 	void registerHooks(std::shared_ptr<GameWrapper> gameWrapper);
-	void unregisterHooks(std::shared_ptr<GameWrapper> gameWrapper);
+	void unregisterHooks();
 
+	// Register handler
+	void registerScreenHandler(IMenuScreenHandler& handler);
+	void unregisterScreenHandler(IMenuScreenHandler& handler);
+
+	// Call on plugin window render
+	void renderHandlers() const;
+
+	// Clean all handlers
+	void resetHandlers();
+
+	// Callbacks for menu changes
 	using MenuCallbackFunc = std::function<void(ERocketMenu)>;
 	using MenuUnknownCallbackFunc = std::function<void(const std::string&)>;
 
@@ -49,18 +103,37 @@ public:
 #undef EVENT_LIST
 #undef EVENT_MAP
 
+	void resetCallbacks();
+
 private:
+	std::shared_ptr<GameWrapper> gameWrapper;
 	void handleMenuChanged(MenuStackWrapper menuStack);
+
 	void popMenu();
 	void pushMenu(ERocketMenu menu);
 
+	// Current stack
 	std::vector<ERocketMenu> stack;
+	void debugMenuStack(const std::vector<std::string>& srcStack);
 
-	// Handle callbacks
+	// Registered handlers
+	struct HandlerInstance
+	{
+		IMenuScreenHandler* h;
+		size_t timerSequenceNumber;
+	};
+	std::vector<HandlerInstance> handlers;
+
+	void notifyHandlersTopChanged(ERocketMenu top);
+	void enableHandler(HandlerInstance& inst) const;
+	void enableHandlerActual(HandlerInstance& inst) const;
+	void disableHandler(HandlerInstance& inst) const;
+
+	// Callbacks
 	template <typename FNC> struct MenuCallback { uint64_t id; FNC f; };
 	template <typename FNC> using MenuCallbackList = std::vector<MenuCallback<FNC>>;
 	template <typename FNC> using MenuCallbackMap = MenuCallbackList<FNC>[static_cast<size_t>(ERocketMenu::Count)];
-
+	
 	static uint64_t id_counter;
 
 	MenuCallbackList<MenuCallbackFunc> onPush;
@@ -119,3 +192,4 @@ private:
 		removeCallbackFromList(map[static_cast<size_t>(menu)], id);
 	}
 };
+

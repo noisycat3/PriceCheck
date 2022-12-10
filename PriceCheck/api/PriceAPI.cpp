@@ -161,13 +161,6 @@ void PriceAPI::OnLoadData(APIData res)
 	// Update string on .set file
 	std::time_t updated = (intmax_t)res.last_refresh;
 	std::chrono::duration<double> elapsed = std::chrono::system_clock::now()-std::chrono::system_clock::from_time_t(updated);
-
-	if (duration_cast<hours>(elapsed).count() < 1)
-		lastUpdated = " up to date";
-	else
-		lastUpdated = " updated ~ " + std::to_string(duration_cast<hours>(elapsed).count()) + "h ago.";
-
-	_cvar->getCvar(CVAR_DATA_STATUS).setValue(lastUpdated);
 }
 
 /// <summary>
@@ -183,6 +176,5 @@ void PriceAPI::OnResponseError()
 			"Unable to get price data...\nPlease try again later.", 
 			"default", 8.5F
 		);
-		_cvar->getCvar(CVAR_DATA_STATUS).setValue(" error, please try again later.");
 	}
 }
