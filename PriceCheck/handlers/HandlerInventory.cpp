@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "HandlerInventory.h"
 
-#include "SelfContainedTest.h"
 #include "gui/Fonts.h"
 #include "gui/GUITools.h"
 #include "wrappers/ProductsWrapper.h"
@@ -33,9 +32,6 @@ void HandlerInventory::onEnable(GameWrapper* gw)
 	ptrScroll = ProductsWrapper::getInventoryScrollOffsetPtr();
 	gameSize = gw->GetScreenSize();
 	uiScale = gw->GetDisplayScale();
-
-	uint32_t* ptr = testPointerPath();
-	LOG("pointer path test: {}, {}", static_cast<void*>(ptr), *ptr);
 }
 
 void HandlerInventory::render(GameWrapper* gw)
@@ -86,7 +82,7 @@ void HandlerInventory::render(GameWrapper* gw)
 				const ImVec2 nextSize = { itemSlotSize.x, ImGui::GetTextLineHeight() + 2.f };
 
 				ImGui::SetCursorPos(nextPos);
-				const uint32_t itemSlot = idx + *ptrScroll;
+				const uint32_t itemSlot = idx + (ptrScroll ? *ptrScroll : 0);
 				ImGui::Text("price %u", itemSlot);
 				
 				// fmt::format("itemslot_{}", idx).c_str()

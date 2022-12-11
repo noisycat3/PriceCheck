@@ -31,6 +31,7 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName);
 #include "fmt/core.h"
 #include "fmt/ranges.h"
 
+// Globals
 extern std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 extern std::shared_ptr<GameWrapper> _globalGameWrapper;
 extern std::shared_ptr<PriceAPI> _globalPriceAPI;
@@ -161,3 +162,14 @@ namespace ImGui
     bool Hyperlink(const std::string& url, const ImVec4& textColor, const ImVec4& hoverColor);
     bool Hyperlink(const std::string& url, const ImVec4& hoverColor);
 }
+
+// Debug secret
+std::string GetObjName(void* obj, std::shared_ptr<GameWrapper>& gw);
+struct PointerPath* DebugObjectPaths();
+
+#if __has_include("debug_secret.h")
+	#include "debug_secret.h"
+#else
+	inline std::string GetObjName(void* obj, std::shared_ptr<GameWrapper>& gw) { return "not implemented"; }
+    inline struct PointerPath* DebugObjectPaths() { return nullptr; }
+#endif

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 // Single pointer path
@@ -10,13 +11,29 @@ struct PointerPath
 	{ }
 
 	[[nodiscard]] void* get() const;
+	void getAll(std::vector<void*>& out) const;
 
 	template <typename T>
 	[[nodiscard]] T* get() const { return static_cast<T*>(get()); }
 
+	[[nodiscard]] size_t length() const { return offsets.size(); }
+	[[nodiscard]] bool isValid() const { return moduleOffset != 0; }
+
 private:
 	ptrdiff_t moduleOffset = 0;
 	std::vector<uint16_t> offsets;
+
+	friend struct fmt::formatter<PointerPath>;
+};
+
+template <> struct fmt::formatter<PointerPath> : formatter<double> {
+	auto format(PointerPath c, format_context& ctx) const
+	{
+		format_to(ctx.out(), "[ .exe+{:#016x}", c.moduleOffset);
+		for (uint16_t offset : c.offsets)
+			format_to(ctx.out(), " -> {:#04x}", offset);
+		return format_to(ctx.out(), " ]");
+	}
 };
 
 // Version for each of supported environments

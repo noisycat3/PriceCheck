@@ -81,8 +81,12 @@ void PriceCheck::onLoad()
 		_globalGameWrapper = gameWrapper;
 
 		// Set global version for pointer paths
-		VersionedPointerPath::setVersion(gameWrapper->GetPsyBuildID(),
-			gameWrapper->IsUsingSteamVersion() ? HostDependentPointerPath::STEAM : HostDependentPointerPath::EPIC);
+		const std::string buildId = gameWrapper->GetPsyBuildID();
+		const bool isSteam = gameWrapper->IsUsingSteamVersion();
+
+		VersionedPointerPath::setVersion(buildId,
+			isSteam ? HostDependentPointerPath::STEAM : HostDependentPointerPath::EPIC);
+		LOG("Detected version: {}/{}", isSteam ? "steam" : "epic", buildId.c_str());
 
 		// Initialize persistent storage
 		storage = std::make_unique<PersistentStorage>(this, "pricecheck", true, true);
@@ -115,6 +119,30 @@ void PriceCheck::onLoad()
 
 		// Handler for inventory screen
 		menuMgr.registerScreenHandler(handlerInventory);
+
+		cvarManager->registerNotifier("pricecheck_dbg_paths", static_cast<commandNotifier>([](auto params)
+		{
+			std::vector<void*> testPtrList;
+
+			PointerPath* path = DebugObjectPaths();
+			while (path && path->isValid())
+			{
+				testPtrList.clear();
+				path->getAll(testPtrList);
+				const size_t traversedNum = path->length() + 1;
+
+				LOG("TESTING POINTER PATH: {}/{} -> {}", testPtrList.size(), traversedNum , *path);
+
+				for (size_t idx = 0; idx < testPtrList.size(); ++idx)
+				{
+					void* ptr = testPtrList[idx];
+					std::string name = GetObjName(ptr, _globalGameWrapper);
+					LOG("    {}/{}: {:#016x} = {}", idx + 1, traversedNum, reinterpret_cast<uint64_t>(ptr), name);
+
+				}
+				++path;
+			}
+		}), "debug price check pointer paths (dev-only)", PERMISSION_ALL);
 
 		/* FOR TRADEITEMS */ // Is this NONO? check TradeItem.cpp -> updateItemInfo()
 		SpecialEditionDatabaseWrapper sedb = gameWrapper->GetItemsWrapper().GetSpecialEditionDB();
@@ -349,6 +377,9 @@ void PriceCheck::RenderSettings()
 
 	// End description
 	ImGui::Separator();
+
+	//storage->RegisterPersistentCvar()
+	//ImGui::SliderFloat("Font scale: ", )
 
 	if (ImGui::Button("Save user settings", { 150.f, 0.f }))
 		storage->WritePersistentStorage();

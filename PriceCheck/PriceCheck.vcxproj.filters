@@ -146,9 +146,6 @@
     <ClCompile Include="handlers\HandlerInventory.cpp">
       <Filter>Source Files\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="SelfContainedTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PersistentStorage\PersistentStorage.cpp">
       <Filter>Source Files\PersistentStorage</Filter>
     </ClCompile>
@@ -244,11 +241,11 @@
     <ClInclude Include="handlers\HandlerInventory.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="SelfContainedTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PersistentStorage\PersistentStorage.h">
       <Filter>Header Files\PersistentStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_secret.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
