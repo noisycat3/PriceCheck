@@ -153,3 +153,11 @@ constexpr uint32_t crc32(const std::string_view str)
         crc = (crc >> 8) ^ crc_table[(crc ^ c) & 0xff];
     return crc ^ 0xffffffff;
 }
+
+namespace ImGui
+{
+    bool Hyperlink(const std::string& label, const std::string& url, const ImVec4& textColor, const ImVec4& hoverColor);
+    bool Hyperlink(const std::string& label, const std::string& url, const ImVec4& hoverColor);
+    bool Hyperlink(const std::string& url, const ImVec4& textColor, const ImVec4& hoverColor);
+    bool Hyperlink(const std::string& url, const ImVec4& hoverColor);
+}

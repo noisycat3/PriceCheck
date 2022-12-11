@@ -15,48 +15,18 @@ std::shared_ptr<GameWrapper> _globalGameWrapper;
 std::shared_ptr<SpecialEditionDatabaseWrapper> _globalSpecialEditionManager;
 std::shared_ptr<PriceAPI> _globalPriceAPI;
 
-void PriceCheck::registerCvars()
+void PriceCheck::StartRender()
 {
-	/* ==================
-	*		SET FILE CVARS
-	* ===================
-	*/
-	try 
-	{
-		cvarManager->registerCvar(CVAR_PROVIDER, "1", "Select data provider", false)
-			.bindTo(dataProvider);
+	_globalCvarManager->executeCommand(fmt::format("openmenu {}", PLUGIN_NAME), false);
+}
 
-		CVarWrapper forceShowVariable = cvarManager->registerCvar(CVAR_FORCE_SHOW, "0", "Show all UI elements", 
-			false, true, 0,true, 1);
-		forceShowVariable.bindTo(forceShow);
-		forceShowVariable.addOnValueChanged([this](std::string cvarName, CVarWrapper newCvar) 
-		{
-			if (newCvar.IsNull()) 
-				return;
-			newCvar.getBoolValue() ? StartRender() : StopRender();
-		});
-
-		/* DEBUG ITEM SERIES
-		auto seriesInfo = cvarManager->registerCvar("pc_series", "1", "Check series items", true, true, 1);
-		seriesInfo.addOnValueChanged(std::bind(&PriceCheck::checkSeriesItems, this, std::placeholders::_1, std::placeholders::_2));
-		*/
-
-		// Why the hell it won't just work with ""
-		gameWrapper->LoadToastTexture("pricecheck_logo", std::string("./bakkesmod/data/assets/pricecheck_logo.tga"));
-	}
-	catch (std::exception& e)
-	{
-		LOG("Plugin failed to load! Please contact plugin developer");
-		LOG("{}:{}", __FUNCTION__, e.what());
-	}
+void PriceCheck::StopRender()
+{
+	_globalCvarManager->executeCommand(fmt::format("closemenu {}", PLUGIN_NAME), false);
 }
 
 void PriceCheck::registerHooks()
 {
-	gameWrapper->HookEventWithCallerPost<ProductsWrapper>(HOOK_INV_SCROLL, 
-		[this](ProductsWrapper caller, void* params, std::string eventName) { inventoryScrolled(caller); });
-
-
 	gameWrapper->HookEventWithCallerPost<TradeWrapper>(HOOK_TRADE_START,
 		[this](TradeWrapper caller, void* params, std::string eventName) { tradeStart(caller); });
 
@@ -101,41 +71,6 @@ void PriceCheck::registerHooks()
 
 	gameWrapper->HookEventWithCallerPost<ProductTradeInWrapper>(HOOK_TRADE_IN_END,
 		[this](ProductTradeInWrapper caller, void* params, std::string eventName) { tradeInEnded(caller); });
-
-	/* THIS IS NOT WORKING YET - unable to check if blueprint or item */
-	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_OPEN,
-	//	[this](ActorWrapper caller, void* params, std::string eventName)
-	//	{
-	//		showInventory = true;
-	//	});
-
-	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_CLOSE,
-	//	[this](ActorWrapper caller, void* params, std::string eventName)
-	//	{
-	//		showInventory = false;
-	//		hoverItem.Clear();
-	//	});
-
-	//gameWrapper->HookEventWithCallerPost<ActorWrapper>(HOOK_INV_HOVER,
-	//	[this](ActorWrapper caller, void* params, std::string eventName) 
-	//	{ 
-	//		hoverItem.OnHover();
-	//	});
-
-	//gameWrapper->HookEventWithCallerPost<OnlineProductWrapper>(HOOK_INVENTORY_ITEM,
-	//	[this](OnlineProductWrapper caller, void* params, std::string eventName) { showInvetoryItem(caller); });
-}
-
-const std::string PriceCheck::s_wndName = "PriceCheck";
-
-void PriceCheck::StartRender()
-{
-	_globalCvarManager->executeCommand("openmenu " + s_wndName);
-}
-
-void PriceCheck::StopRender()
-{
-	_globalCvarManager->executeCommand("closemenu " + s_wndName);
 }
 
 void PriceCheck::onLoad()
@@ -149,6 +84,10 @@ void PriceCheck::onLoad()
 		VersionedPointerPath::setVersion(gameWrapper->GetPsyBuildID(),
 			gameWrapper->IsUsingSteamVersion() ? HostDependentPointerPath::STEAM : HostDependentPointerPath::EPIC);
 
+		// Initialize persistent storage
+		storage = std::make_unique<PersistentStorage>(this, "pricecheck", true, true);
+		//storage->RegisterPersistentCvar()
+
 		/* ITEM API */
 		api = std::make_shared<PriceAPI>(cvarManager, gameWrapper);
 		_globalPriceAPI = api;
@@ -160,13 +99,13 @@ void PriceCheck::onLoad()
 		forceShow = std::make_shared<bool>(false);
 
 		/* MISC STUFF */
-		registerHooks();
-		registerCvars();
+		gameWrapper->LoadToastTexture("pricecheck_logo", std::string("./bakkesmod/data/assets/pricecheck_logo.tga"));
 
+		registerHooks();
 		menuMgr.registerHooks(gameWrapper);
 		menuMgr.addOnTopChanged([this](ERocketMenu m)
 		{
-				LOG("Top menu changed: {}", getMenuNameFromEnum(m));
+			LOG("Top menu changed: {}", getMenuNameFromEnum(m));
 		});
 
 		menuMgr.addOnUnknownMenu([this](const std::string& menu)
@@ -174,6 +113,7 @@ void PriceCheck::onLoad()
 			LOG("UNKNOWN MENU: `{}`", menu.c_str());
 		});
 
+		// Handler for inventory screen
 		menuMgr.registerScreenHandler(handlerInventory);
 
 		/* FOR TRADEITEMS */ // Is this NONO? check TradeItem.cpp -> updateItemInfo()
@@ -194,15 +134,6 @@ void PriceCheck::onUnload()
 	menuMgr.unregisterHooks();
 	menuMgr.resetHandlers();
 	menuMgr.resetCallbacks();
-}
-
-void PriceCheck::inventoryScrolled(ProductsWrapper caller)
-{
-	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0x10, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
-	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x120, 0x28, 0xC8, 0x198, 0x6E8, 0x20, 0xEA8, 0x278, 0x284 });
-	//const PointerPath pp = PointerPath(0x0237BBE0, { 0x30, 0x80, 0x20, 0x80, 0xC0, 0x170, 0x58, 0x10, 0x284 });
-	//LOG("SCROLL: {}\nsteam: {}, bakkes: {}, psy: {}", caller.getInventoryScrollOffset(), 
-	//	gameWrapper->GetSteamVersion(), gameWrapper->GetBakkesModVersion(), gameWrapper->GetPsyBuildID().c_str());
 }
 
 void PriceCheck::tradeStart(TradeWrapper trade)
@@ -403,6 +334,34 @@ void PriceCheck::checkSeriesItems(string cvarName, CVarWrapper newCvar)
 }
 */
 
+void PriceCheck::RenderSettings()
+{
+	const ImVec4 linkColor = { 20, 20, 160, 255 };
+	const ImVec4 linkHoverColor = { 50, 50, 180, 255 };
+
+	// Title
+	ImGui::PushFont(USE_FONT("title"));
+	ImGui::TextUnformatted("Price Check Plus");
+	ImGui::PopFont();
+
+	// Repository link
+	ImGui::Hyperlink("https://github.com/noisycat3/PriceCheck", linkColor, linkHoverColor);
+
+	// End description
+	ImGui::Separator();
+
+	if (ImGui::Button("Save user settings", { 150.f, 0.f }))
+		storage->WritePersistentStorage();
+
+	// End config
+	ImGui::Separator();
+
+	// Footer
+	ImGui::TextUnformatted("Created by noisycat, based on PriceCheck: ");
+	ImGui::SameLine(0, 0);
+	ImGui::Hyperlink("https://github.com/matias-kovero/PriceCheck", linkColor, linkHoverColor);
+}
+
 void PriceCheck::SetImGuiContext(uintptr_t ctx)
 {
 	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
@@ -411,4 +370,6 @@ void PriceCheck::SetImGuiContext(uintptr_t ctx)
 	Fonts::LoadFont({ "main", "Roboto-Regular.ttf", 14 });
 	Fonts::LoadFont({ "main-b", "Roboto-Bold.ttf", 14 });
 	Fonts::LoadFont({ "main-i", "Roboto-Italic.ttf", 14 });
+
+	Fonts::LoadFont({ "title", "Roboto-Bold.ttf", 24 });
 }

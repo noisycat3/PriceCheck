@@ -54,6 +54,12 @@
     <Filter Include="Source Files\handlers">
       <UniqueIdentifier>{424e2895-6a2c-4c7e-afa6-0bb32bbad13c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\PersistentStorage">
+      <UniqueIdentifier>{25f95a23-7e47-46a5-a588-9eb65f4556e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PersistentStorage">
+      <UniqueIdentifier>{10f75a3c-717d-41c0-9368-f73cbdd247ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PriceCheck.cpp">
@@ -142,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="SelfContainedTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentStorage\PersistentStorage.cpp">
+      <Filter>Source Files\PersistentStorage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +246,9 @@
     </ClInclude>
     <ClInclude Include="SelfContainedTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentStorage\PersistentStorage.h">
+      <Filter>Header Files\PersistentStorage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,11 @@
 #pragma once
 
-#define CVAR_PROVIDER "pc_provider"
-#define CVAR_FORCE_SHOW "pc_force_show"
+/* CONFIG */
+#define CFG_FONTSIZE "pricecheck_fontsize"
 
 /* INVENTORY HOOKS */
 //#define HOOK_INV_ITEM "Function TAGame.GFxData_Products_TA.LoadProduct"
-#define HOOK_INV_SCROLL "Function TAGame.GFxData_Products_TA.SetViewProducts"
+//#define HOOK_INV_SCROLL "Function TAGame.GFxData_Products_TA.SetViewProducts"
 
 /* TRADE HOOKS */
 #define HOOK_TRADE_START "Function TAGame.GFxData_TradeLobby_TA.HandleAcceptedInviteToTrade"

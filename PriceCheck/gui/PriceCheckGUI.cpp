@@ -98,11 +98,11 @@ bool PriceCheck::IsActiveOverlay()
 // Called when window is opened
 void PriceCheck::OnOpen()
 {
-	isWindowOpen_ = true;
+
 }
 
 // Called when window is closed
 void PriceCheck::OnClose()
 {
-	isWindowOpen_ = false;
+
 }
