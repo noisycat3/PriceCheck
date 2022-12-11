@@ -140,6 +140,9 @@
     <ClCompile Include="handlers\HandlerInventory.cpp">
       <Filter>Source Files\handlers</Filter>
     </ClCompile>
+    <ClCompile Include="SelfContainedTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PriceCheck.h">
@@ -231,6 +234,9 @@
     </ClInclude>
     <ClInclude Include="handlers\HandlerInventory.h">
       <Filter>Header Files\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="SelfContainedTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

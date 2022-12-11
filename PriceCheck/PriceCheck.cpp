@@ -155,7 +155,7 @@ void PriceCheck::onLoad()
 		api->LoadData();
 
 		/* SET FILE PARAMS */
-		dataProvider = std::make_shared<string>();
+		dataProvider = std::make_shared<std::string>();
 		useAVG = std::make_shared<bool>(false);
 		forceShow = std::make_shared<bool>(false);
 
@@ -329,7 +329,7 @@ void PriceCheck::showNewOnlineItem(ActorWrapper wrap, int count)
 		}
 
 		PaintPrice price = i.GetPrice();
-		string paint = i.GetPaint();
+		std::string paint = i.GetPaint();
 
 		// LOG("IsContainer: {}", i.GetProduct().IsContainer());
 		// LOG("AssetPath: {}", i.GetProduct().GetThumbnailAssetPath().ToString());
@@ -402,3 +402,13 @@ void PriceCheck::checkSeriesItems(string cvarName, CVarWrapper newCvar)
 	}
 }
 */
+
+void PriceCheck::SetImGuiContext(uintptr_t ctx)
+{
+	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
+	Fonts::Initialize(gameWrapper);
+
+	Fonts::LoadFont({ "main", "Roboto-Regular.ttf", 14 });
+	Fonts::LoadFont({ "main-b", "Roboto-Bold.ttf", 14 });
+	Fonts::LoadFont({ "main-i", "Roboto-Italic.ttf", 14 });
+}

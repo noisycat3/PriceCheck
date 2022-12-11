@@ -24,7 +24,7 @@ public:
 	void CheckTrade(TradeWrapper trade);
 	void Clear();
 
-	void Render(Fonts fonts, bool show);
+	void Render(bool show);
 
 private:
 	Value sendValue = Value();
@@ -37,7 +37,7 @@ private:
 	ImColor colorLoss = { 255, 126, 126, 255 };
 
 	/* ImGui specific */
-	string menuName = "TradeWindow";
+	std::string menuName = "TradeWindow";
 	float renderWidth = 190.f;
 	float padding = 8.f;
 	/* Maybe not the best practice, creating vector size of 4 to save column widths */

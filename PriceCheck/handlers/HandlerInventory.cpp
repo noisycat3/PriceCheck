@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "HandlerInventory.h"
 
+#include "SelfContainedTest.h"
 #include "gui/Fonts.h"
 #include "gui/GUITools.h"
 #include "wrappers/ProductsWrapper.h"
@@ -33,15 +34,15 @@ void HandlerInventory::onEnable(GameWrapper* gw)
 	gameSize = gw->GetScreenSize();
 	uiScale = gw->GetDisplayScale();
 
-	fontTitle = Fonts::getInstance().GetFont("RLHeadI");
-	fontText = Fonts::getInstance().GetFont("default");
+	uint32_t* ptr = testPointerPath();
+	LOG("pointer path test: {}, {}", static_cast<void*>(ptr), *ptr);
 }
 
 void HandlerInventory::render(GameWrapper* gw)
 {
-	LOG("WINDOW DRAW {}", *ptrScroll);
+	//LOG("WINDOW DRAW {}", *ptrScroll);
 
-	ImGui::PushFont(fontText);
+	ImGui::PushFont(USE_FONT("main"));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 3.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.25f);
@@ -49,7 +50,7 @@ void HandlerInventory::render(GameWrapper* gw)
 	// IM_COL32(5, 10, 19, 255)
 	// IM_COL32(21, 50, 85, 255)
 	// IM_COL32(41, 68, 118, 255)
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(36, 62, 110, 80));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(36, 140, 110, 90));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(99, 121, 157, 80));
 
 	const float sizeBase = min((float)gameSize.X * 0.47f, (float)gameSize.Y * 0.73f) * uiScale;
@@ -58,40 +59,42 @@ void HandlerInventory::render(GameWrapper* gw)
 	const ImVec2 itemListSize = { sizeBase * 1.255f, sizeBase * 1.0f };
 
 	const ImVec2 itemSlotPanelPos = { itemListPos.x + sizeBase * 0.01521f, itemListPos.y + sizeBase * 0.203422f };
-	const ImVec2 itemSlotPanelSize = { sizeBase * 1.2015209f, sizeBase * 0.77947f };
+	const ImVec2 itemSlotPanelSize = { sizeBase * 1.2015209f, sizeBase * 0.78447f };
 	
 	const ImVec2 itemSlotAllottedSize = { itemSlotPanelSize.x / 7.f, itemSlotPanelSize.y / 4.f };
 	const ImVec2 itemSlotSize = { sizeBase * 0.1653992f, sizeBase * 0.18821293f };
 
-	for (uint8_t y = 0; y < 4; ++y)
+	ImGui::SetNextWindowPos(itemSlotPanelPos);
+	ImGui::SetNextWindowSize(itemSlotPanelSize);
+
+	constexpr ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMouseInputs;
+
+	if (ImGui::Begin("pricecheck_inventory", nullptr, wndFlags))
 	{
-		for (uint8_t x = 0; x < 7; ++x)
+		ImGui::SetWindowFontScale(sizeBase / 600.f);
+		for (uint8_t y = 0; y < 4; ++y)
 		{
-			const uint32_t idx = (y * 7) + x;
-
-			const ImVec2 nextPos = {
-				itemSlotPanelPos.x + static_cast<float>(x) * itemSlotAllottedSize.x,
-				itemSlotPanelPos.y + static_cast<float>(y) * itemSlotAllottedSize.y
-			};
-			const ImVec2 nextSize = itemSlotSize;
-
-			ImGui::SetNextWindowPos(nextPos);
-			ImGui::SetNextWindowSize(nextSize);
-			
-			if (ImGui::Begin(fmt::format("itemslot_{}", idx).c_str(), nullptr,
-				ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar |
-				ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
+			for (uint8_t x = 0; x < 7; ++x)
 			{
+				const uint32_t idx = (y * 7) + x;
+
+				const ImVec2 nextPos = {
+					static_cast<float>(x) * itemSlotAllottedSize.x,
+					static_cast<float>(y) * itemSlotAllottedSize.y
+				};
+				const ImVec2 nextSize = { itemSlotSize.x, ImGui::GetTextLineHeight() + 2.f };
+
+				ImGui::SetCursorPos(nextPos);
 				const uint32_t itemSlot = idx + *ptrScroll;
-
 				ImGui::Text("price %u", itemSlot);
+				
+				// fmt::format("itemslot_{}", idx).c_str()
+				//GUITools::BoxShadow(ImGui::GetWindowPos(), ImGui::GetWindowSize(), 1.1f, true);
 			}
-
-			//GUITools::BoxShadow(ImGui::GetWindowPos(), ImGui::GetWindowSize(), 1.1f, true);
-
-			ImGui::End();
 		}
 	}
+	ImGui::End();
 
 
 	ImGui::PopFont();
@@ -106,7 +109,4 @@ void HandlerInventory::onDisable(GameWrapper* gw)
 	ptrScroll = nullptr;
 	gameSize = { 0, 0 };
 	uiScale = 1.0f;
-
-	fontTitle = nullptr;
-	fontText = nullptr;
 }

@@ -1,29 +1,25 @@
 #include <nlohmann/json.hpp>
 #include "APIClasses.h"
 
-using json = nlohmann::json;
-using string = std::string;
-using thread = std::thread;
-
 class PriceAPI
 {
 public:
 	PriceAPI(std::shared_ptr<CVarManagerWrapper> _cvar, std::shared_ptr<GameWrapper> _gw);
-	string lastUpdated;
+	std::string lastUpdated;
 
 	void LoadData();
 
 	void Refresh();
 
-	Item FindItem(string id);
+	Item FindItem(std::string id);
 	Item FindItem(int id);
 
-	Item FindBlueprint(string id);
+	Item FindBlueprint(std::string id);
 	Item FindBlueprint(int id);
 
 private:
-	std::map<string, Item> _blueprintData;
-	std::map<string, Item> _priceData;
+	std::map<std::string, Item> _blueprintData;
+	std::map<std::string, Item> _priceData;
 
 	std::shared_ptr<CVarManagerWrapper> _cvar;
 	std::shared_ptr<GameWrapper> _gw;

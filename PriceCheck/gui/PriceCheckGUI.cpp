@@ -54,7 +54,7 @@ void PriceCheck::DrawTradeWindow()
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(36, 62, 110, 255));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(99, 121, 157, 255));
 
-	playerTrade.Render(fonts, &guiState.showTrade);
+	playerTrade.Render(&guiState.showTrade);
 
 	// End - Window render stops here
 	ImGui::End();
@@ -75,21 +75,12 @@ void PriceCheck::DrawTradeInWindow()
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(5, 10, 19, 255)); // Colors are taken from Music Widget
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4{ 0.286f, 0.505f, 0.709f, 0.9f }); 
 	/* Is this needed, as seems that ImGui will save the screen positions */
-	tradeIn.Render(fonts, &guiState.showTrade);
+	tradeIn.Render(&guiState.showTrade);
 
 	// End - Window render stops here
 	ImGui::End();
 	ImGui::PopStyleVar(3);
 	ImGui::PopStyleColor(2);
-}
-
-// Don't call this yourself, BM will call this function with a pointer to the current ImGui context
-void PriceCheck::SetImGuiContext(uintptr_t ctx)
-{
-	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
-	auto gui = gameWrapper->GetGUIManager();
-	// How to know if an font is loaded?
-	fonts.LoadFonts(gameWrapper);
 }
 
 // Should events such as mouse clicks/key inputs be blocked so they won't reach the game

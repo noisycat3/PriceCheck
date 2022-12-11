@@ -29,7 +29,7 @@ private:
 	/* SET FILE */
 	std::shared_ptr<bool> useAVG;
 	std::shared_ptr<bool> forceShow;
-	std::shared_ptr<string> dataProvider;
+	std::shared_ptr<std::string> dataProvider;
 
 	GuiState guiState;
 
@@ -81,7 +81,7 @@ public:
 	/* TRADE-IN FUNCTIONS */
 	void checkPrices(ProductTradeInWrapper wrap);
 	void tradeInEnded(ProductTradeInWrapper wrap);
-	void checkSeriesItems(string cvarName, CVarWrapper newCvar);
+	void checkSeriesItems(std::string cvarName, CVarWrapper newCvar);
 
 	// Inherited via PluginWindow
 	
@@ -89,7 +89,6 @@ public:
 	static const std::string s_wndName;
 
 	bool isWindowOpen_ = false;
-	Fonts fonts = Fonts();
 
 	virtual void DrawTradeWindow();
 	virtual void DrawTradeInWindow();

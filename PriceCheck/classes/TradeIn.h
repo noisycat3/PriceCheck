@@ -17,8 +17,8 @@ class TradeIn
 		int min = 0;
 		int max = 0;
 		int series = 0;
-		string label = "";
-		string paintLabel = "";
+		std::string label = "";
+		std::string paintLabel = "";
 		COLOR paint = COLOR();
 	};
 
@@ -40,7 +40,7 @@ public:
 	void AddItem(TradeItem item);
 	void Clear();
 
-	void Render(Fonts fonts, bool show);
+	void Render(bool show);
 
 private:
 	int quality = 0;
@@ -60,7 +60,7 @@ private:
 	void CalculateRenderInfo();
 
 	/* Cached render info to reduce calculations */
-	string menuName = "TradeInWindow";
+	std::string menuName = "TradeInWindow";
 	float renderWidth = 250.f;
 	float additionalHeight = 0.f;
 	/* Maybe not the best practice, creating vector size of 5 to save column widths */

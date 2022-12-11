@@ -8,8 +8,8 @@
 /// </summary>
 void PriceAPI::LoadData()
 {
-	thread t([this]() {
-		string url = "/insider/pc";
+	std::thread t([this]() {
+		std::string url = "/insider/pc";
 		_fetching = true;
 		cli.set_follow_location(true);
 		auto res = cli.Get(url.c_str());
@@ -48,7 +48,7 @@ void PriceAPI::Refresh()
 	if (need && !_fetching) LoadData();
 }
 
-Item PriceAPI::FindItem(string id)
+Item PriceAPI::FindItem(std::string id)
 {
 	auto it = _priceData.find(id);
 	if (it != _priceData.end())
@@ -70,7 +70,7 @@ Item PriceAPI::FindItem(int id)
 	return FindItem(std::to_string(id));
 }
 
-Item PriceAPI::FindBlueprint(string id)
+Item PriceAPI::FindBlueprint(std::string id)
 {
 	auto it = _blueprintData.find(id);
 	if (it != _blueprintData.end())
@@ -114,9 +114,9 @@ void PriceAPI::SetUpParser()
 		initial[req] = base;
 	}
 
-	string a(reinterpret_cast<char*>(structData));
-	string b(reinterpret_cast<char*>(initial));
-	string c = a + b;
+	std::string a(reinterpret_cast<char*>(structData));
+	std::string b(reinterpret_cast<char*>(initial));
+	std::string c = a + b;
 
 	cli.set_bearer_token_auth(c.c_str());
 }

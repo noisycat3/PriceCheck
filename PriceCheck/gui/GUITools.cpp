@@ -35,7 +35,7 @@ void GUITools::BoxShadow(ImVec2 pos, ImVec2 size, float gap, bool dark)
 	}
 }
 
-void GUITools::AlignRight(string text, float posX)
+void GUITools::AlignRight(std::string text, float posX)
 {
 	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 	//ImGui::SetCursorPosX(posX + ImGui::GetColumnWidth() - textWidth);

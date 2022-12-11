@@ -15,7 +15,7 @@ PaintPrice TradeItem::GetPrice()
   return price.data[m_info.paint];
 }
 
-string TradeItem::GetPaint()
+std::string TradeItem::GetPaint()
 {
   return PaintToString(m_info.paint);
 }
@@ -30,14 +30,14 @@ COLOR TradeItem::GetQualityColor()
   return QualityToRGB(this->GetQuality());
 }
 
-string TradeItem::GetSeries()
+std::string TradeItem::GetSeries()
 {
   try 
   {
     int id = this->IsBlueprint() ?
       this->GetBlueprintSeriesID() :
       this->GetSeriesID();
-    string name = ToSeriesString(id);
+    std::string name = ToSeriesString(id);
     return name;
   }
   catch (std::exception& e) 
@@ -96,10 +96,10 @@ Info TradeItem::updateItemInfo()
   return m_info;
 }
 
-string TradeItem::ToSeriesString(const int& id)
+std::string TradeItem::ToSeriesString(const int& id)
 {
   // Thanks to ItsBranK for providing data
-  static std::unordered_map<int, string> series
+  static std::unordered_map<int, std::string> series
   {
     {    1, "No" }, // OG items w/o series
     {    2, "Champions 1" },

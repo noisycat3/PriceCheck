@@ -1,58 +1,91 @@
 #include "pch.h"
 #include "Fonts.h"
+
+#include <utility>
 #include "bakkesmod/wrappers/GuiManagerWrapper.h"
 
-Fonts::Fonts()
+Fonts::Descriptor::Descriptor(const char* inName, const char* inPath, int inSize)
+	: name(inName), path(inPath), size(inSize)
 {
-  // Path is relative to "bakkesmod/data/fonts/"
-  supportedFonts = {
-    { Typografy::HeadingItalic, "RLHeadI", "Arvin Bold Italic.ttf", 20, nullptr },
-  };
 }
 
-void Fonts::LoadFonts(std::shared_ptr<GameWrapper> gw)
+void Fonts::Initialize(std::shared_ptr<GameWrapper> gameWrapper)
 {
-  auto gui = gw->GetGUIManager();
+	Fonts& f = instance();
+	f.gw = std::move(gameWrapper);
 
-  for (const auto& f : supportedFonts)
-  {
-    auto [res, font] = gui.LoadFont(f.name, f.path, f.size);
-
-		if (res == 1) LOG("Font {} will be loaded", f.name);
-		else if (res == 0) LOG("Failed to load font: {}", f.name);
-		else if (res == 2 && font)
-		{
-      counter++;
-      loaded.insert(std::pair<string, ImFont*>(f.name, font));
-		}
-  }
+	// Start loading everything we got so far now
+	for (auto [_, val] : f.instanceMap)
+		val.load(f.gw.get());
 }
 
-ImFont* Fonts::GetFont(string name)
+void Fonts::LoadFont(const Descriptor& desc)
 {
-  if (const auto it = loaded.find(name); it != loaded.end())
-  {
-    return it->second;
-  }
-  // Font not found in loaded fonts! This could happen on first render.
-  try 
-  {
-    auto gui = _globalGameWrapper->GetGUIManager();
-    auto font = gui.GetFont(name);
-    if (font) loaded.insert(std::pair<string, ImFont*>(name, font));
-    return font;
-  }
-  catch (std::exception& e) 
-  {
-    LOG("Exeption in {}: {}", __FUNCTION__, e.what());
-    // Return default font.
-    return _globalGameWrapper->GetGUIManager().GetFont("default");
-  }
+	Fonts& f = instance();
+	const size_t key = hashString(desc.name);
+
+	// Start loading now if initialized
+	if (f.gw != nullptr)
+	{
+		if (auto [pair, success] = f.instanceMap.emplace(key, FontInstance{ desc, 0, nullptr }); success)
+			pair->second.load(f.gw.get());
+	}
 }
 
-Fonts& Fonts::getInstance()
+ImFont* Fonts::GetDefaultFont()
+{
+	static ImFont* defaultFont = instance().gw->GetGUIManager().GetFont("default");
+	return defaultFont;
+}
+
+ImFont* Fonts::GetFont(const char* font)
+{
+	Fonts& f = instance();
+	const auto it = f.instanceMap.find(hashString(font));
+	if (it == f.instanceMap.end())
+	{
+		LOG("No font named `{}`", font);
+		return nullptr;
+	}
+
+	FontInstance& inst = (*it).second;
+	return inst.load(f.gw.get());
+}
+
+Fonts& Fonts::instance()
 {
     static Fonts s_fonts;
     return s_fonts;
+}
+
+size_t Fonts::hashString(const char* str)
+{
+	return std::hash<std::string_view>{}(str);
+}
+
+ImFont* Fonts::FontInstance::load(GameWrapper* localGameWrapper)
+{
+	// Perform the actual load
+	auto [result, ptr] =
+		localGameWrapper->GetGUIManager().LoadFont(desc.name, desc.path, desc.size);
+
+	switch (result)
+	{
+	default:
+	case 0:
+	{
+		LOG("Failed to load font `{}-{}` from `{}`", desc.name, desc.size, desc.path);
+		return nullptr;
+	}
+	case 1:
+		status = 1;
+		break;
+	case 2:
+		status = 2;
+		loaded = ptr;
+		break;
+	}
+
+	return loaded;
 }
 

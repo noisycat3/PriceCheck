@@ -37,11 +37,11 @@ void PlayerTrade::Clear()
 	recvValue = Value();
 }
 
-void PlayerTrade::Render(Fonts fonts, bool show)
+void PlayerTrade::Render(bool show)
 {
-	if (!fontTitle) fontTitle = fonts.GetFont("RLHeadI");
+	if (!fontTitle) fontTitle = Fonts::GetFont("RLHeadI");
 	//if (!fontSmallTitle) fontSmallTitle = fonts.GetFont("RLHead");
-	if (!fontText) fontText = fonts.GetFont("default");
+	if (!fontText) fontText = Fonts::GetFont("default");
 
 	ImGui::PushFont(fontTitle);
 
@@ -63,7 +63,7 @@ void PlayerTrade::Render(Fonts fonts, bool show)
 
 	int rSum = (recvValue.min + recvValue.max) / 2;
 	int gSum = (sendValue.min + sendValue.max) / 2;
-	string state = "RESULT:";
+	std::string state = "RESULT:";
 	rSum == gSum ? state = "RESULT:" :
 		rSum > gSum ? state = "PROFIT:" : state = "LOSS:";
 	if (useAvg) 

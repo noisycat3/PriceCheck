@@ -79,6 +79,16 @@ template <> struct fmt::formatter<ProductInstanceID> {
     }
 };
 
+constexpr uint32_t hash_combine(uint32_t a, uint32_t b)
+{
+    return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+}
+
+template <typename... ARGS>
+constexpr uint32_t hash_combine(uint32_t a, uint32_t b, ARGS... args)
+{
+    return hash_combine(a, hash_combine(b, args...));
+}
 
 static constexpr uint32_t crc_table[256] =
 {

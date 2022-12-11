@@ -12,12 +12,12 @@
 #define JOPT(var) if(j.find(#var) != j.end()) { j.at(#var).get_to(p.var); }
 #define JOPT2(var, var2) if(j.find(#var) != j.end()) { j.at(#var).get_to(p.var2); }
 
-ITEMPAINT ToItemPaint(const string& id)
+ITEMPAINT ToItemPaint(const std::string& id)
 {
   // Notes on unordered_map vs map:
   // For lookup tables/relative static maps use unordered -> faster
   // If need tons of insertions/deletions -> use map
-  static std::unordered_map<string, ITEMPAINT> table
+  static std::unordered_map<std::string, ITEMPAINT> table
   {
     {"0", ITEMPAINT::DEFAULT},
     {"1", ITEMPAINT::CRIMSON},
@@ -41,7 +41,7 @@ ITEMPAINT ToItemPaint(const string& id)
   throw std::invalid_argument("Argument to paint mapping is unknown");
 }
 
-string PaintToString(ITEMPAINT paint)
+std::string PaintToString(ITEMPAINT paint)
 {
   switch (paint) 
   {
@@ -162,7 +162,7 @@ void from_json(const json j, Item& p)
 {
   try 
   {
-    auto tmp_data = j.get<std::map<string, PaintPrice>>();
+    auto tmp_data = j.get<std::map<std::string, PaintPrice>>();
     for (auto& [id, prices] : tmp_data)
     {
       auto item_paint = ToItemPaint(id);

@@ -55,7 +55,7 @@ void TradeIn::Clear()
 	additionalHeight = 0.f;
 }
 
-void TradeIn::Render(Fonts fonts, bool show)
+void TradeIn::Render(bool show)
 {
 	ImVec2 box_size = { renderWidth, 100.f + additionalHeight + (items.size() + series.size()) * ImGui::GetTextLineHeight() * 1.25f + 16.f }; // This should change with code?
 
@@ -72,8 +72,8 @@ void TradeIn::Render(Fonts fonts, bool show)
 
 	float padding = 8.f;
 	// Check fonts, if not cached - cache them.
-	if (!fontTitle) fontTitle = fonts.GetFont("RLHeadI");
-	if (!fontText) fontText = fonts.GetFont("default");
+	if (!fontTitle) fontTitle = Fonts::GetFont("RLHeadI");
+	if (!fontText) fontText = Fonts::GetFont("default");
 
 	// Start rendering content
 	GUITools::BoxShadow(ImGui::GetWindowPos(), ImGui::GetWindowSize(), 1.1f, true);

@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "ItemSeries.h"
 
-string ItemSeriesDatabaseWrapper::ToSeriesString(const int& id)
+std::string ItemSeriesDatabaseWrapper::ToSeriesString(const int& id)
 {
   // Thanks to ItsBranK for providing data
-  static std::unordered_map<int, string> series
+  static std::unordered_map<int, std::string> series
   {
     {    1, "No" }, // OG items w/o series
     {    2, "Champions 1" },
@@ -139,7 +139,7 @@ std::vector<int> ItemSeriesDatabaseWrapper::SeriesToItems(const int& id)
   return std::vector<int>{};
 }
 
-string ItemSeriesDatabaseWrapper::QualityToString(const int& quality)
+std::string ItemSeriesDatabaseWrapper::QualityToString(const int& quality)
 {
   switch (quality)
   {

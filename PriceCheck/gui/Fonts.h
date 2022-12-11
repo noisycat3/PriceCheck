@@ -1,37 +1,82 @@
 #pragma once
 
-enum class Typografy
-{
-	Heading = 0,
-	HeadingItalic = 1,
-	Body = 2,
-	BodyBold = 3
-};
-
-struct CustomFont
-{
-	Typografy type;
-	string name = "";
-	string path = "";
-	int size = 14;
-	ImFont* font;
-};
-
+/*
+ * Fonts are tricky, because they are not loaded immediately.
+ * If queried soon enough, they will probably be ready in time.
+ * It's nice to handle all cases tho.
+ * This manager provides utils for loading and fallback for the loading period.
+ */
 class Fonts
 {
 public:
-	Fonts();
+	// A font that we want to load/use
+	struct Descriptor
+	{
+		Descriptor(const char* inName, const char* inPath, int inSize);
 
-	std::map<string, ImFont*> loaded;
+		const char* name;
+		const char* path;
+		const int size;
+	};
 
-	void LoadFonts(std::shared_ptr<GameWrapper> gw);
-	// Core fonts are named: default and title
-	ImFont* GetFont(string name);
+	// Initializes font manager
+	static void Initialize(std::shared_ptr<GameWrapper> gameWrapper); // call before getting any thing!
 
-	static Fonts& getInstance();
+	// Schedules font to be loaded
+	static void LoadFont(const Descriptor& desc);
+
+	// Get default font
+	static ImFont* GetDefaultFont();
+
+	// Get font by name
+	static ImFont* GetFont(const char* font);
 
 private:
-	std::vector<CustomFont> supportedFonts;
-	int counter = 0;
+	Fonts() = default; // Singleton, private constructor. Use static methods.
+	static Fonts& instance();
+
+	// Utility to hash strings with std::hash
+	static size_t hashString(const char* str);
+
+	// Instance data
+	std::shared_ptr<GameWrapper> gw;
+
+	struct FontInstance {
+		const Descriptor desc;
+		int64_t status;
+		ImFont* loaded;
+
+		ImFont* load(GameWrapper* localGameWrapper);
+	};
+	
+	std::unordered_map<size_t, FontInstance> instanceMap;
 };
 
+/*
+ * Tries to grab a given font, fallback to default
+ * Font must be already loaded by Fonts::LoadFont(...)
+ * Usage:
+ *		static FontLoader fontNameLoader("loadedFontIdentifier");
+ *		ImFont* fontName = fontNameLoader.get();
+ */
+struct FontLoader
+{
+	FontLoader(const char* name) : targetName(name), cachedFont(nullptr) { }
+
+	// Access the font
+	ImFont* get()
+	{
+		if (cachedFont != nullptr)
+			return cachedFont;
+		cachedFont = Fonts::GetFont(targetName);
+		return cachedFont ? cachedFont : Fonts::GetDefaultFont();
+	}
+
+private:
+	const char* targetName;
+	ImFont* cachedFont;
+};
+
+// Macro to cache the font in any place
+#define USE_FONT( font ) \
+	[]() { static FontLoader fl( font ); return fl.get(); }()

@@ -2,6 +2,7 @@
 
 #include "classes/MenuManager.h"
 #include <bakkesmod/wrappers/GameWrapper.h>
+#include <IMGUI/imgui.h>
 
 class HandlerInventory : public IMenuScreenHandler
 {
@@ -20,7 +21,4 @@ private:
 	int32_t* ptrScroll = nullptr;
 	Vector2 gameSize = { 0, 0 };
 	float uiScale = 1.0f;
-
-	ImFont* fontTitle = nullptr;
-	ImFont* fontText = nullptr;
 };

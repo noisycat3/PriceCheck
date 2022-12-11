@@ -14,14 +14,14 @@ public:
   TradeItem(const OnlineProductWrapper& i) : OnlineProductWrapper(i) { m_info = updateItemInfo(); }
 
   PaintPrice GetPrice();
-  string GetPaint();
+  std::string GetPaint();
   COLOR GetPaintColor();
   COLOR GetQualityColor();
-  string GetSeries();
+  std::string GetSeries();
 
 private:
   Info m_info = Info();
   Info updateItemInfo();
-  string ToSeriesString(const int& id);
+  std::string ToSeriesString(const int& id);
   std::vector<int> SeriesToItems(const int& id);
 };
