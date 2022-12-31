@@ -1,0 +1,3 @@
+[submodule "AdvancedInventoryWrappers"]
+	path = AdvancedInventoryWrappers
+	url = https://github.com/noisycat3/AdvancedInventoryWrappers.git
