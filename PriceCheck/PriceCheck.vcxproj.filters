@@ -30,23 +30,11 @@
     <Filter Include="Header Files\classes">
       <UniqueIdentifier>{de065a08-2733-41c5-a5d6-c241392b78f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\api">
-      <UniqueIdentifier>{2267eb98-b403-4e38-bc0c-f6f04f225e76}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\api">
-      <UniqueIdentifier>{1d6d38ba-c83c-41e9-9e2f-d6c8d2c92489}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gui">
       <UniqueIdentifier>{f089cf4c-ce10-4301-871b-e0901f64c2e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{e73098d0-f7e3-4429-b89a-7a14ea58d1b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\wrappers">
-      <UniqueIdentifier>{2eab31a4-4910-4485-803d-0781b49a0e43}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\wrappers">
-      <UniqueIdentifier>{6703de1c-9739-4646-928c-12b72ced0ec3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\handlers">
       <UniqueIdentifier>{63496742-db8f-468b-b434-50381c0e0f85}</UniqueIdentifier>
@@ -107,24 +95,6 @@
     <ClCompile Include="fmt\src\os.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TradeItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="classes\PlayerTrade.cpp">
-      <Filter>Source Files\classes</Filter>
-    </ClCompile>
-    <ClCompile Include="api\APIClasses.cpp">
-      <Filter>Source Files\api</Filter>
-    </ClCompile>
-    <ClCompile Include="api\PriceAPI.cpp">
-      <Filter>Source Files\api</Filter>
-    </ClCompile>
-    <ClCompile Include="classes\TradeIn.cpp">
-      <Filter>Source Files\classes</Filter>
-    </ClCompile>
-    <ClCompile Include="classes\ItemSeries.cpp">
-      <Filter>Source Files\classes</Filter>
-    </ClCompile>
     <ClCompile Include="gui\Fonts.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
@@ -134,12 +104,6 @@
     <ClCompile Include="gui\PriceCheckGUI.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="wrappers\ProductsWrapper.cpp">
-      <Filter>Source Files\wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="wrappers\WrapperUtil.cpp">
-      <Filter>Source Files\wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="classes\MenuManager.cpp">
       <Filter>Source Files\classes</Filter>
     </ClCompile>
@@ -148,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="PersistentStorage\PersistentStorage.cpp">
       <Filter>Source Files\PersistentStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="classes\PriceDatabase.cpp">
+      <Filter>Source Files\classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -199,38 +166,14 @@
     <ClInclude Include="version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TradeItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="defines.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="classes\PlayerTrade.h">
-      <Filter>Header Files\classes</Filter>
-    </ClInclude>
-    <ClInclude Include="api\APIClasses.h">
-      <Filter>Header Files\api</Filter>
-    </ClInclude>
-    <ClInclude Include="api\PriceAPI.h">
-      <Filter>Header Files\api</Filter>
-    </ClInclude>
-    <ClInclude Include="classes\TradeIn.h">
-      <Filter>Header Files\classes</Filter>
-    </ClInclude>
-    <ClInclude Include="classes\ItemSeries.h">
-      <Filter>Header Files\classes</Filter>
     </ClInclude>
     <ClInclude Include="gui\Fonts.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\GUITools.h">
       <Filter>Header Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="wrappers\ProductsWrapper.h">
-      <Filter>Header Files\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="wrappers\WrapperUtil.h">
-      <Filter>Header Files\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="classes\MenuManager.h">
       <Filter>Header Files\classes</Filter>
@@ -244,8 +187,8 @@
     <ClInclude Include="PersistentStorage\PersistentStorage.h">
       <Filter>Header Files\PersistentStorage</Filter>
     </ClInclude>
-    <ClInclude Include="debug_secret.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="classes\PriceDatabase.h">
+      <Filter>Header Files\classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

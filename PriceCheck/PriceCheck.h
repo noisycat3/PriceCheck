@@ -4,14 +4,10 @@
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 #include "version.h"
 
-#include "classes/TradeIn.h"
-#include "classes/PlayerTrade.h"
-#include "classes/ItemSeries.h"
 #include "classes/MenuManager.h"
 
 #include "handlers/HandlerInventory.h"
 #include "PersistentStorage/PersistentStorage.h"
-#include "wrappers/ProductsWrapper.h"
 
 constexpr auto plugin_version = 
 	stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
@@ -44,15 +40,6 @@ class PriceCheck final
 	MenuManager menuMgr;
 	HandlerInventory handlerInventory;
 
-	/* TRADE */
-	bool showTrade = false;
-	PlayerTrade playerTrade = PlayerTrade();
-
-	/* TRADE-IN */
-	bool showTradeIn = false;
-	TradeIn tradeIn = TradeIn();
-	ItemSeriesDatabaseWrapper itemSeriesDatabaseWrapper = ItemSeriesDatabaseWrapper();
-
 	/* ITEM DROPS */
 	std::list<ProductInstanceID> itemDrops;
 
@@ -67,10 +54,6 @@ public:
 
 	void onLoad() override;
 	void onUnload() override;
-
-	std::shared_ptr<PriceAPI> api;
-
-	/* INVENTORY FUNCTIONS */
 
 	/* TRADE FUNCTIONS */
 	void tradeStart(TradeWrapper trade);

@@ -1,7 +1,4 @@
 #pragma once
-#pragma comment(lib, "libcrypto.lib")
-#pragma comment(lib, "libssl.lib")
-#pragma comment(lib, "zlib.lib")
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #define CPPHTTPLIB_ZLIB_SUPPORT
@@ -12,13 +9,7 @@
 #include <TlHelp32.h>
 uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName);
 
-#pragma warning(push)
-#pragma warning(disable: 4267)
-#include <httplib.h>
-#pragma warning(pop)
-
 #include "bakkesmod/plugin/bakkesmodplugin.h"
-#include "api/PriceAPI.h"
 
 #include <string>
 #include <vector>
@@ -34,20 +25,7 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName);
 // Globals
 extern std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 extern std::shared_ptr<GameWrapper> _globalGameWrapper;
-extern std::shared_ptr<PriceAPI> _globalPriceAPI;
 extern std::shared_ptr<SpecialEditionDatabaseWrapper> _globalSpecialEditionManager;
-
-struct HandleNewOnlineItemParam
-{
-  void* no_touch;
-  uintptr_t online_product_ptr;
-};
-
-struct DropParams
-{
-  unsigned char padding[0x8];
-  int ReturnValue;
-};
 
 template<typename S, typename... Args>
 void LOG(const S& format_str, Args&&... args)
@@ -162,14 +140,3 @@ namespace ImGui
     bool Hyperlink(const std::string& url, const ImVec4& textColor, const ImVec4& hoverColor);
     bool Hyperlink(const std::string& url, const ImVec4& hoverColor);
 }
-
-// Debug secret
-std::string GetObjName(void* obj, std::shared_ptr<GameWrapper>& gw);
-struct PointerPath* DebugObjectPaths();
-
-#if __has_include("debug_secret.h")
-	#include "debug_secret.h"
-#else
-	inline std::string GetObjName(void* obj, std::shared_ptr<GameWrapper>& gw) { return "not implemented"; }
-    inline struct PointerPath* DebugObjectPaths() { return nullptr; }
-#endif

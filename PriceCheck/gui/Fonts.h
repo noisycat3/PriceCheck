@@ -49,7 +49,7 @@ private:
 		ImFont* load(GameWrapper* localGameWrapper);
 	};
 	
-	std::unordered_map<size_t, FontInstance> instanceMap;
+	std::unordered_map<size_t, FontInstance> instanceMap { };
 };
 
 /*

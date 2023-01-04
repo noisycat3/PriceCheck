@@ -1,19 +1,18 @@
 #include "pch.h"
 #include "PriceCheck.h"
-#include "TradeItem.h"
 #include "bakkesmod/wrappers/items/TradeWrapper.h"
 #include "bakkesmod/wrappers/items/ProductTradeInWrapper.h"
 #include "bakkesmod/wrappers/items/ProductWrapper.h"
 #include "defines.h"
-#include "wrappers/ProductsWrapper.h"
-#include "wrappers/WrapperUtil.h"
+
+#include "AdvancedInventoryWrappers.h"
+#include "gui/Fonts.h"
 
 BAKKESMOD_PLUGIN(PriceCheck, "Check item prices.", plugin_version, PLUGINTYPE_FREEPLAY)
 
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 std::shared_ptr<GameWrapper> _globalGameWrapper;
 std::shared_ptr<SpecialEditionDatabaseWrapper> _globalSpecialEditionManager;
-std::shared_ptr<PriceAPI> _globalPriceAPI;
 
 void PriceCheck::StartRender()
 {
@@ -25,9 +24,22 @@ void PriceCheck::StopRender()
 	_globalCvarManager->executeCommand(fmt::format("closemenu {}", PLUGIN_NAME), false);
 }
 
+struct HandleNewOnlineItemParam
+{
+	void* no_touch;
+	uintptr_t online_product_ptr;
+};
+
+struct DropParams
+{
+	unsigned char padding[0x8];
+	int ReturnValue;
+};
+
+
 void PriceCheck::registerHooks()
 {
-	gameWrapper->HookEventWithCallerPost<TradeWrapper>(HOOK_TRADE_START,
+	/*gameWrapper->HookEventWithCallerPost<TradeWrapper>(HOOK_TRADE_START,
 		[this](TradeWrapper caller, void* params, std::string eventName) { tradeStart(caller); });
 
 	gameWrapper->HookEventWithCallerPost<TradeWrapper>(HOOK_TRADE_END,
@@ -70,7 +82,19 @@ void PriceCheck::registerHooks()
 		[this](ProductTradeInWrapper caller, void* params, std::string eventName) { tradeInEnded(caller); });
 
 	gameWrapper->HookEventWithCallerPost<ProductTradeInWrapper>(HOOK_TRADE_IN_END,
-		[this](ProductTradeInWrapper caller, void* params, std::string eventName) { tradeInEnded(caller); });
+		[this](ProductTradeInWrapper caller, void* params, std::string eventName) { tradeInEnded(caller); });*/
+
+	gameWrapper->HookEventWithCaller<aiw::GfxProductsWrapper>(HOOK_INV_UPDATE,
+		[this](const aiw::GfxProductsWrapper&, void* params, const std::string&) {
+
+			const aiw::GfxProducts_SetViewProductsParamsWrapper paramsWrapper(params);
+			handlerInventory.prepareIndexTable(paramsWrapper.GetHashIDs());
+		});
+
+	gameWrapper->HookEventWithCallerPost<aiw::GfxProductsWrapper>(HOOK_INV_UPDATE,
+		[this](const aiw::GfxProductsWrapper& caller, void*, const std::string&) {
+			handlerInventory.resolveIndexTable(caller);
+		});
 }
 
 void PriceCheck::onLoad()
@@ -83,19 +107,14 @@ void PriceCheck::onLoad()
 		// Set global version for pointer paths
 		const std::string buildId = gameWrapper->GetPsyBuildID();
 		const bool isSteam = gameWrapper->IsUsingSteamVersion();
-
-		VersionedPointerPath::setVersion(buildId,
-			isSteam ? HostDependentPointerPath::STEAM : HostDependentPointerPath::EPIC);
 		LOG("Detected version: {}/{}", isSteam ? "steam" : "epic", buildId.c_str());
+
+		// Kickoff api thread
+		PriceDatabase::getInstance().startApiThread();
 
 		// Initialize persistent storage
 		storage = std::make_unique<PersistentStorage>(this, "pricecheck", true, true);
 		//storage->RegisterPersistentCvar()
-
-		/* ITEM API */
-		api = std::make_shared<PriceAPI>(cvarManager, gameWrapper);
-		_globalPriceAPI = api;
-		api->LoadData();
 
 		/* SET FILE PARAMS */
 		dataProvider = std::make_shared<std::string>();
@@ -120,30 +139,6 @@ void PriceCheck::onLoad()
 		// Handler for inventory screen
 		menuMgr.registerScreenHandler(handlerInventory);
 
-		cvarManager->registerNotifier("pricecheck_dbg_paths", static_cast<commandNotifier>([](auto params)
-		{
-			std::vector<void*> testPtrList;
-
-			PointerPath* path = DebugObjectPaths();
-			while (path && path->isValid())
-			{
-				testPtrList.clear();
-				path->getAll(testPtrList);
-				const size_t traversedNum = path->length() + 1;
-
-				LOG("TESTING POINTER PATH: {}/{} -> {}", testPtrList.size(), traversedNum , *path);
-
-				for (size_t idx = 0; idx < testPtrList.size(); ++idx)
-				{
-					void* ptr = testPtrList[idx];
-					std::string name = GetObjName(ptr, _globalGameWrapper);
-					LOG("    {}/{}: {:#016x} = {}", idx + 1, traversedNum, reinterpret_cast<uint64_t>(ptr), name);
-
-				}
-				++path;
-			}
-		}), "debug price check pointer paths (dev-only)", PERMISSION_ALL);
-
 		/* FOR TRADEITEMS */ // Is this NONO? check TradeItem.cpp -> updateItemInfo()
 		SpecialEditionDatabaseWrapper sedb = gameWrapper->GetItemsWrapper().GetSpecialEditionDB();
 		_globalSpecialEditionManager = std::make_shared<SpecialEditionDatabaseWrapper>(sedb);
@@ -159,6 +154,9 @@ void PriceCheck::onUnload()
 {
 	StopRender();
 
+	// Stop api thread
+	PriceDatabase::getInstance().killApiThread();
+
 	menuMgr.unregisterHooks();
 	menuMgr.resetHandlers();
 	menuMgr.resetCallbacks();
@@ -166,8 +164,6 @@ void PriceCheck::onUnload()
 
 void PriceCheck::tradeStart(TradeWrapper trade)
 {
-	api->Refresh();
-
 	if (trade.IsNull())
 	{
 		LOG("{}: Trade is null", __FUNCTION__);
@@ -176,7 +172,7 @@ void PriceCheck::tradeStart(TradeWrapper trade)
 	StartRender();
 	guiState.showTrade = true;
 	// Should be empty but double checking
-	playerTrade.Clear();
+	//playerTrade.Clear();
 }
 
 void PriceCheck::tradeEnd(TradeWrapper trade)
@@ -188,7 +184,7 @@ void PriceCheck::tradeEnd(TradeWrapper trade)
 	}
 	StopRender();
 	guiState.showTrade = false;
-	playerTrade.Clear();
+	//playerTrade.Clear();
 }
 
 void PriceCheck::checkPrices(TradeWrapper trade)
@@ -198,13 +194,11 @@ void PriceCheck::checkPrices(TradeWrapper trade)
 		LOG("{}: Trade is null", __FUNCTION__);
 		return;
 	}
-	playerTrade.CheckTrade(trade);
+	//playerTrade.CheckTrade(trade);
 }
 
 void PriceCheck::getNewOnlineItem(ActorWrapper wrap, void* params)
 {
-	api->Refresh();
-
 	if (!params)
 	{
 		LOG("{}: Params are null", __FUNCTION__);
@@ -280,27 +274,27 @@ void PriceCheck::showNewOnlineItem(ActorWrapper wrap, int count)
 	{
 		// LOG("Drops amount: {}", itemDrops.size());
 		ProductInstanceID id = itemDrops.front();
-		TradeItem i = gameWrapper->GetItemsWrapper().GetOnlineProduct(id.lower_bits);
-		if (!i) 
-		{
-			LOG("{}: Item is null", __FUNCTION__);
-			return;
-		}
+		//TradeItem i = gameWrapper->GetItemsWrapper().GetOnlineProduct(id.lower_bits);
+		//if (!i) 
+		//{
+		//	LOG("{}: Item is null", __FUNCTION__);
+		//	return;
+		//}
 
-		PaintPrice price = i.GetPrice();
-		std::string paint = i.GetPaint();
+		//PaintPrice price = i.GetPrice();
+		//std::string paint = "";// i.GetPaint();
 
-		// LOG("IsContainer: {}", i.GetProduct().IsContainer());
-		// LOG("AssetPath: {}", i.GetProduct().GetThumbnailAssetPath().ToString());
-		// AssetPath: Wheel_Hanzawa_T.Wheel_Hanzawa_T
-		gameWrapper->Toast(
-			"New Item",
-			i.GetLongLabel().ToString() + "\n" +				// Name
-			(paint != "" ? "(" + paint + ")\n" : "") +	// Paint
-			std::to_string(price.min) + " - " + std::to_string(price.max), // Price min - max
-			"pricecheck_logo", 4.5f, ToastType_Info);
+		//// LOG("IsContainer: {}", i.GetProduct().IsContainer());
+		//// LOG("AssetPath: {}", i.GetProduct().GetThumbnailAssetPath().ToString());
+		//// AssetPath: Wheel_Hanzawa_T.Wheel_Hanzawa_T
+		//gameWrapper->Toast(
+		//	"New Item",
+		//	i.GetLongLabel().ToString() + "\n" +				// Name
+		//	(paint != "" ? "(" + paint + ")\n" : "") +	// Paint
+		//	std::to_string(price.min) + " - " + std::to_string(price.max), // Price min - max
+		//	"pricecheck_logo", 4.5f, ToastType_Info);
 
-		itemDrops.pop_front();
+		//itemDrops.pop_front();
 	}
 	else {
 		// LOG("{}: Drops seem empty", __FUNCTION__);
@@ -329,10 +323,10 @@ void PriceCheck::checkPrices(ProductTradeInWrapper wrap)
 	guiState.showTradeIn = items.Count() > 0 ? true : false;
 	if (guiState.showTradeIn) StartRender();
 	// As we will loop old items as well, clear the existing list.
-	tradeIn.Clear();
+	//tradeIn.Clear();
 
-	for (TradeItem i : items) 
-		tradeIn.AddItem(i);
+	//for (TradeItem i : items) 
+	//	tradeIn.AddItem(i);
 }
 
 void PriceCheck::tradeInEnded(ProductTradeInWrapper wrap)
@@ -340,7 +334,7 @@ void PriceCheck::tradeInEnded(ProductTradeInWrapper wrap)
 	StopRender();
 	//showTradeIn = false;
 	guiState.showTradeIn = false;
-	tradeIn.Clear();
+	//tradeIn.Clear();
 }
 
 /* USED TO DEBUG ITEM SERIES
